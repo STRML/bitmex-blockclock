@@ -11,11 +11,15 @@ async function getBitMEXPrice(symbol) {
   const response = await axios.get('https://www.bitmex.com/api/v1/instrument', {
     params: {
       symbol,
-      columns: 'lastPrice'
+      columns: 'lastPrice,tickSize'
     }
   });
-  const price = response.data?.[0]?.lastPrice || 0;
-  return price;
+  const datum = response.data?.[0] || {lastPrice: 0, tickSize: 1};
+  let {lastPrice, tickSize} = datum;
+  if (tickSize >= 0.1) lastPrice = Math.round(lastPrice);
+  else if (tickSize >= 0.01) lastPrice = lastPrice.toFixed(1);
+  else if (lastPrice < 10) lastPrice = lastPrice.toFixed(5);
+  return lastPrice;
 }
 
 async function getExchangeVolume() {
