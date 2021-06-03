@@ -29,16 +29,16 @@ async function getExchangeVolume() {
 }
 
 async function writePrice(price, symbol, volume) {
-  console.log('writing', price);
+  const params = {
+    pair: `${symbol.slice(0, 3)}/${symbol.slice(3)}`,
+    sym: '$',
+    tl: 'BitMEX',
+    br: `Total Exchange Volume: ${volume}`,
+  };
+  console.log(`Writing to ${CLOCK}:`, params);
   try {
-    await axios.get(`http://${CLOCK}/api/show/number/${price}`, {
-      params: {
-        pair: `${symbol.slice(0, 3)}/${symbol.slice(3)}`,
-        sym: '$',
-        tl: 'BitMEX',
-        br: `Total Exchange Volume: ${volume}`,
-      }
-    })
+    await axios.get(`http://${CLOCK}/api/show/number/${price}`, {params});
+    console.log(`Write to ${CLOCK} successful.`);
   } catch (e) {
     // Ratelimit, or host gone
     if (e?.response?.status === 429) {
