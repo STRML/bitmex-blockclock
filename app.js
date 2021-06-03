@@ -40,8 +40,14 @@ async function writePrice(price, symbol, volume) {
       }
     })
   } catch (e) {
-    if (e.response.status === 429) {
+    // Ratelimit, or host gone
+    if (e?.response?.status === 429) {
       await delay(10 * 1000);
+      return writePrice(price, symbol, volume);
+    }
+    if (!e?.response) {
+      console.log(`Host ${CLOCK} gone, waiting a while then trying again...`);
+      await delay(60 * 1000);
       return writePrice(price, symbol, volume);
     }
     throw e;
