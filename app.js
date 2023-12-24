@@ -32,16 +32,16 @@ async function writePrice(price, symbol, volume) {
   const params = {
     pair: `${symbol.slice(0, 3)}/${symbol.slice(3)}`,
     sym: '$',
-    tl: 'BitMEX',
+    tl: `BitMEX ${new Date().toLocaleString()}`,
     br: `Total Exchange Volume: ${volume}`,
   };
-  console.log(`Writing to ${CLOCK}:`, params);
   try {
     await axios.get(`http://${CLOCK}/api/show/number/${price}`, {params});
-    console.log(`Write to ${CLOCK} successful.`);
+    console.log(`Write to ${CLOCK} successful.`, {...params, price});
   } catch (e) {
     // Ratelimit, or host gone
     if (e?.response?.status === 429) {
+      console.log(`${CLOCK} returned 429, waiting then trying again...`)
       await delay(10 * 1000);
       return writePrice(price, symbol, volume);
     }
